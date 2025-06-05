@@ -1,6 +1,7 @@
 
 # SemiGuard: Lightweight Desktop-Based Intrusion Detection System
-SemiGuard is a Python-based intrusion detection system (IDS) developed as part of a graduation thesis project. Designed to run on a desktop Ubuntu environment, it aims to detect and mitigate common network attacks in real time using packet analysis and signature-based detection methods. ### You can access detailed information through the Report.pdf file included in the repository.
+SemiGuard is a Python-based intrusion detection system (IDS) developed as part of a graduation thesis project. Designed to run on a desktop Ubuntu environment, it aims to detect and mitigate common network attacks in real time using packet analysis and signature-based detection methods.
+### You can access detailed information through the Report.pdf file included in the repository.
 
 ## Features
 
