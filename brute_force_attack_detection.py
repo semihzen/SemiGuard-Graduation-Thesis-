@@ -6,21 +6,22 @@ from datetime import datetime
 from scapy.all import sniff, TCP, IP
 import smtplib
 from email.mime.text import MIMEText
+from dotenv import load_dotenv
 import os
+load_dotenv()
 
-# Configuration
 POST_THRESHOLD = 20
 TCP_SYN_THRESHOLD = 30
 INTERVAL = 10
 
 SENDER_EMAIL = "saldiritespit@gmail.com"
 RECEIVER_EMAIL = "semihzenqin@gmail.com"
-EMAIL_PASSWORD = "cahrgcjnksrbojdm"
+EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 
 post_counter = defaultdict(list)
 tcp_syn_counter = defaultdict(list)
 
-# Log dosyası ayarı
+
 log_dir = "/home/semih/Desktop/log"
 os.makedirs(log_dir, exist_ok=True)
 log_file_path = os.path.join(log_dir, "bruteforce_log.txt")
