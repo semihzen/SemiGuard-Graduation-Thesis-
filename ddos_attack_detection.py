@@ -6,10 +6,12 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from collections import Counter
+from dotenv import load_dotenv
+load_dotenv()
 
 SENDER_EMAIL = "saldiritespit@gmail.com"
 RECEIVER_EMAIL = "semihzenqin@gmail.com"
-EMAIL_PASSWORD = "cahrgcjnksrbojdm"
+EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 INTERFACE = "ens33"
 
 LOG_DIR = "/home/semih/Desktop/log"
@@ -40,9 +42,9 @@ def send_email(subject, body):
         server.login(SENDER_EMAIL, EMAIL_PASSWORD)
         server.sendmail(SENDER_EMAIL, RECEIVER_EMAIL, msg.as_string())
         server.quit()
-        print(f"📧 Email sent: {subject}", flush=True)
+        print(f"Email sent: {subject}", flush=True)
     except Exception as e:
-        print(f"❌ Failed to send email: {e}", flush=True)
+        print(f"Failed to send email: {e}", flush=True)
 
 THRESHOLD = 100
 INTERVAL = 10
@@ -56,7 +58,7 @@ def packet_handler(pkt):
 
 def monitor():
     global ip_list
-    print("🛡️ DDOS detection system started...", flush=True)
+    print(" DDOS detection system started...", flush=True)
     while True:
         ip_list = []
         sniff(filter="tcp", prn=packet_handler, timeout=INTERVAL, iface=INTERFACE, store=False)
@@ -68,13 +70,13 @@ def monitor():
             
             ip_report = "\n".join([f"{ip} => {count} SYN" for ip, count in top_attackers])
             message = (
-                f"🔥 [{timestamp}] POTENTIAL DDOS ATTACK DETECTED!\n"
+                f" [{timestamp}] POTENTIAL DDOS ATTACK DETECTED!\n"
                 f"Total SYN packets: {total_syn}\n"
                 f"Top source IPs:\n{ip_report}"
             )
             print(message, flush=True)
             logging.info(message)
-            send_email("🔥 DDOS DETECTED", message)
+            send_email(" DDOS DETECTED", message)
 
 if __name__ == "__main__":
     monitor()
