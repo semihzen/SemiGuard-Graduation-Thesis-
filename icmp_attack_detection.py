@@ -5,12 +5,13 @@ import logging
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-
+from dotenv import load_dotenv
+load_dotenv()
 THRESHOLD = 50
 LOG_PATH = "/home/semih/Desktop/log/icmp_attack_log.txt"
 SENDER_EMAIL = "saldiritespit@gmail.com"
 RECEIVER_EMAIL = "semihzenqin@gmail.com"
-EMAIL_PASSWORD = "cahrgcjnksrbojdm"
+EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 EMAIL_COOLDOWN = 300
 
 logging.basicConfig(
@@ -36,10 +37,10 @@ def send_email(alert_message):
             server.starttls()
             server.login(SENDER_EMAIL, EMAIL_PASSWORD)
             server.sendmail(SENDER_EMAIL, RECEIVER_EMAIL, msg.as_string())
-        print("📧 Warning email sent!", flush=True)
+        print(" Warning email sent!", flush=True)
     except Exception as e:
-        print(f"❌ Failed to send email: {e}", flush=True)
-        logging.error(f"❌ Failed to send email: {e}")
+        print(f" Failed to send email: {e}", flush=True)
+        logging.error(f" Failed to send email: {e}")
 
 def detect_icmp_attack(packet):
     global start_time, icmp_counter
@@ -60,11 +61,11 @@ def detect_icmp_attack(packet):
                         send_email(alert)
                         last_email_time[ip] = current_time
                     else:
-                        print(f"⏳ Email cooldown not expired for {ip}.", flush=True)
+                        print(f" Email cooldown not expired for {ip}.", flush=True)
 
             icmp_counter = defaultdict(int)
             start_time = current_time
 
-print("🔍 ICMP attack detection started...", flush=True)
+print(" ICMP attack detection started...", flush=True)
 
 sniff(prn=detect_icmp_attack, filter="icmp", store=0, iface="ens33")
