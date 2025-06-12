@@ -4,12 +4,13 @@ import smtplib
 import logging
 from email.mime.text import MIMEText
 from datetime import datetime
+from dotenv import load_dotenv
 import subprocess
 import ipaddress
-
+load_dotenv()
 SENDER_EMAIL = "saldiritespit@gmail.com"
 RECEIVER_EMAIL = "semihzenqin@gmail.com"
-EMAIL_PASSWORD = "cahr gcjn ksrb ojdm"
+EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 INTERFACE = "ens33"
 
 LOG_FILE = os.path.expanduser("/home/semih/Desktop/log/arp_spoof_log.txt")
@@ -21,13 +22,13 @@ logging.basicConfig(
 )
 
 def send_email_alert(ip, real_mac, fake_mac):
-    subject = "⚠️ ARP Spoofing Detected!"
+    subject = " ARP Spoofing Detected!"
     body = f"""
 A spoofed MAC address has been detected for the following IP:
 
-📌 IP Address: {ip}
-✅ Real MAC: {real_mac}
-❌ Fake MAC: {fake_mac}
+ IP Address: {ip}
+ Real MAC: {real_mac}
+ Fake MAC: {fake_mac}
 
 The fake MAC has been removed from the ARP table.
 """
@@ -41,10 +42,10 @@ The fake MAC has been removed from the ARP table.
             server.starttls()
             server.login(SENDER_EMAIL, EMAIL_PASSWORD)
             server.sendmail(SENDER_EMAIL, RECEIVER_EMAIL, msg.as_string())
-        print("📧 Alert email has been sent.", flush=True)
+        print(" Alert email has been sent.", flush=True)
         logging.info(f"Alert email sent: IP={ip}")
     except Exception as e:
-        print(f"❌ Failed to send email: {e}", flush=True)
+        print(f" Failed to send email: {e}", flush=True)
         logging.error(f"Failed to send email: {e}")
 
 def log_attack(ip, real_mac, fake_mac):
@@ -69,7 +70,7 @@ def get_arp_table():
     return arp_table
 
 def scan_network(interface):
-    print("🔎 Starting network scan...", flush=True)
+    print("Starting network scan...", flush=True)
     logging.info("Network scan started.")
 
     ip_info = None
@@ -80,7 +81,7 @@ def scan_network(interface):
                 break
 
     if not ip_info:
-        print(f"❌ Failed to get IP info for interface {interface}!", flush=True)
+        print(f" Failed to get IP info for interface {interface}!", flush=True)
         logging.error(f"Failed to get IP info for interface {interface}!")
         return {}
 
@@ -96,12 +97,12 @@ def scan_network(interface):
     time.sleep(3)
 
     arp_table = get_arp_table()
-    print(f"✅ Network scan complete, {len(arp_table)} devices found.", flush=True)
+    print(f" Network scan complete, {len(arp_table)} devices found.", flush=True)
     logging.info(f"Network scan complete, {len(arp_table)} devices found.")
     return arp_table
 
 def detect_arp_spoof(reference_arp, interface_name):
-    print("🔍 Monitoring ARP table for spoofing...", flush=True)
+    print("Monitoring ARP table for spoofing...", flush=True)
     logging.info("ARP table monitoring started.")
     while True:
         current_arp = get_arp_table()
@@ -110,7 +111,7 @@ def detect_arp_spoof(reference_arp, interface_name):
                 current_mac, _ = current_arp[ip]
                 if current_mac != real_mac:
                     alert_msg = (
-                        f"🚨 ARP Spoofing Detected!\n"
+                        f"ARP Spoofing Detected!\n"
                         f"IP: {ip}\nReal MAC: {real_mac}\nFake MAC: {current_mac}"
                     )
                     print(alert_msg, flush=True)
@@ -119,10 +120,10 @@ def detect_arp_spoof(reference_arp, interface_name):
                     del_command = f"ip neigh del {ip} dev {interface_name}"
                     result = os.system(del_command)
                     if result == 0:
-                        print(f"🧹 Spoofed entry removed from ARP table: {ip}", flush=True)
+                        print(f" Spoofed entry removed from ARP table: {ip}", flush=True)
                         logging.info(f"Spoofed entry removed from ARP table: {ip}")
                     else:
-                        print(f"❌ Failed to delete ARP entry: {del_command}", flush=True)
+                        print(f" Failed to delete ARP entry: {del_command}", flush=True)
                         logging.error(f"Failed to delete ARP entry: {del_command}")
 
                     send_email_alert(ip, real_mac, current_mac)
@@ -133,16 +134,16 @@ def detect_arp_spoof(reference_arp, interface_name):
 if __name__ == "__main__":
     reference_arp = scan_network(INTERFACE)
     if not reference_arp:
-        print("❌ Failed to create reference ARP table. Exiting.", flush=True)
+        print(" Failed to create reference ARP table. Exiting.", flush=True)
         logging.error("Failed to create reference ARP table. Exiting.")
         exit(1)
 
-    print("📥 Initial ARP table captured as reference:", flush=True)
+    print(" Initial ARP table captured as reference:", flush=True)
     logging.info("Initial ARP table captured as reference.")
     for ip, (mac, state) in reference_arp.items():
-        print(f"✔ Reference: {ip} -> {mac} (State: {state})", flush=True)
+        print(f" Reference: {ip} -> {mac} (State: {state})", flush=True)
         logging.info(f"Reference: {ip} -> {mac} (State: {state})")
 
-    print("✅ Reference ARP table saved. Starting monitoring...\n", flush=True)
+    print(" Reference ARP table saved. Starting monitoring...\n", flush=True)
     logging.info("Reference ARP table saved. Starting monitoring...")
     detect_arp_spoof(reference_arp, INTERFACE)
